@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Notifications;
-
-namespace BSUIR_Scheduler.Models
+﻿namespace BSUIR_Scheduler.Models
 {
 
     public class ScheduleInfo

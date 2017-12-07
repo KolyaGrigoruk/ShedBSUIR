@@ -14,16 +14,34 @@
     <Grid x:Name="LayoutRoot">
         <StackPanel Grid.Row="0" Margin="19,0,0,549">
             <TextBlock Text="Расписание БГУИР" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,12,0,0"/>
-            <TextBlock Margin="0,-6.5,-2.167,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}" Height="53" FontSize="36">
-                <Run Text="Введите вашу группу"/>
+            <TextBlock Margin="0,-6.5,-2.167,26.5" Style="{ThemeResource HeaderTextBlockStyle}" CharacterSpacing="{ThemeResource PivotHeaderItemCharacterSpacing}" Height="53" FontSize="30">
+                <Run x:Name="Title" Text=""/>
             </TextBlock>
         </StackPanel>
 
-        <Grid x:Name="ContentRoot" Margin="19,91,10,15">
-            <StackPanel DataContext="StaticResource settings" HorizontalAlignment="Center" Grid.Row="0" Margin="80,130,74,181" >
-                <TextBox PlaceholderText="Номер группы" Name="GroupID"></TextBox>
-                <Button Click="ButtonGetSchedule" Content="Получить расписание!"/>
+        <Grid x:Name="ContentRoot" Margin="10,96,10,32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32*"/>
+                <RowDefinition Height="235*"/>
+            </Grid.RowDefinitions>
+            <AutoSuggestBox x:Name="Suggestions"
+                            ItemsSource="{Binding }"
+                            PlaceholderText="Поиск"
+                            TextChanged="AutoSuggestBox_TextChanged"     
+                            SuggestionChosen="AutoSuggestBox_SuggestionChosen"
+                            Margin="0,9.333,71,0" HorizontalAlignment="Right" Width="217" Height="39" Grid.Row="1">
+                <AutoSuggestBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Fio}"/>
+                    </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
+            </AutoSuggestBox>
+            <StackPanel DataContext="StaticResource settings" HorizontalAlignment="Center" Grid.Row="1" Margin="92,54.833,71,165.667" Width="217" >
+                <TextBox PlaceholderText="Номер группы" x:Name="GroupID"/>
+                <Button Click="ButtonGetSchedule" Content="Получить расписание!" Height="43" Margin="0,0,-0.333,0"/>
             </StackPanel>
+            <RadioButton x:Name="studentButton" Content="Студент" Click="ChangedSettings" HorizontalAlignment="Left" Margin="10,2,0,0" VerticalAlignment="Top" Height="57" Width="168"/>
+            <RadioButton x:Name="teacherButton" Content="Преподаватель" Click="ChangedSettings" HorizontalAlignment="Left" Margin="203,4,0,0" VerticalAlignment="Top" Height="57" Width="168"/>
         </Grid>
     </Grid>
 </Page>

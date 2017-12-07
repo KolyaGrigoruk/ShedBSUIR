@@ -19,16 +19,16 @@
         <StackPanel HorizontalAlignment="Center" Grid.Row="0" >
             <StackPanel Orientation="Horizontal"  VerticalAlignment="Top" HorizontalAlignment="Stretch" Width="384" Height="Auto" >
                 <StackPanel Margin="5,0,5,-0.167">
-                    <TextBlock>
-                        <Run Text="Номер группы"/>
+                    <TextBlock x:Name="RoleLabel">
+                        <Run Text=""/>
                     </TextBlock>
-                    <TextBox  Width="150"   x:Name="GroupID"/>
+                    <TextBlock  Width="auto" MaxWidth="250" x:Name="GroupID" FontSize="28" Margin="0,10,0,0"/>
                 </StackPanel>
-                <StackPanel Margin="5,0,5,0">
+                <StackPanel x:Name="SubgroupPanel" Margin="5,0,5,0">
                     <TextBlock>
                         <Run Text="Подгруппа"/>
                     </TextBlock>
-                    <ComboBox Width="48" x:Name="Subgroup" Height="Auto" RenderTransformOrigin="0.503,0.473" SelectionChanged="SettingsChanged" >
+                    <ComboBox Width="auto" x:Name="Subgroup" Height="Auto" RenderTransformOrigin="0.503,0.473" SelectionChanged="SettingsChanged" >
                         <ComboBoxItem Content="1"/>
                         <ComboBoxItem Content="2"/>
                     </ComboBox>
@@ -37,7 +37,7 @@
                     <TextBlock >
                         <Run Text="Номер недели"/>
                     </TextBlock>
-                    <ComboBox Width="65"  x:Name="Week" RenderTransformOrigin="1.359,0.76" Height="Auto" RequestedTheme="Light" Canvas.ZIndex="2" SelectionChanged="SettingsChanged">
+                    <ComboBox Width="auto"  x:Name="Week"  RenderTransformOrigin="1.359,0.76" Height="Auto" RequestedTheme="Light" Canvas.ZIndex="2" SelectionChanged="SettingsChanged">
                         <ComboBoxItem Content="1" />
                         <ComboBoxItem Content="2" />
                         <ComboBoxItem Content="3" />
@@ -46,23 +46,23 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="52">
-                <Button x:Name="PrevDay" FontSize="15" HorizontalAlignment="Left" Margin="0,-3,0,-2.333" Click="PrevDay_Click"/>
+                <Button x:Name="PrevDay" FontSize="15" HorizontalAlignment="Left" Margin="5,-3,0,-2.333" Click="PrevDay_Click" />
                 <TextBlock x:Name="CurrentDay" FontSize="22" Margin="10,10,10,1" Text=""/>
                 <Button x:Name="NextDay" FontSize="15" HorizontalAlignment="Right" Click="NextDayClick"/>
             </StackPanel>
-            <ListBox x:Name="DaySchedule" Height="461" ItemsSource="{Binding}">
+            <ListBox x:Name="DaySchedule" Height="461" ItemsSource="{Binding}" Margin="5,0,0,0">
                 <ListBox.ItemTemplate >
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0" >
                             <StackPanel Orientation="Vertical">
                                 <TextBlock x:Name="LTime" TextWrapping="Wrap" Text="{Binding LessonTime}" Height="Auto" FontSize="20" Margin="0"/>
                             </StackPanel>
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock x:Name="LessonTitle" TextWrapping="Wrap" Text="{Binding Subject}" Height="Auto" FontSize="22" Margin="0"/>
+                            <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                                <TextBlock x:Name="LessonTitle" TextWrapping="Wrap" Text="{Binding Subject}" Height="Auto" FontSize="22" Margin="0,0,0,5"/>
                                 <TextBlock x:Name="Employee" TextWrapping="Wrap" Text="{Binding Employee[0].Fio}" Height="Auto" FontSize="16" Margin="0"/>
                             </StackPanel>
-                            <StackPanel>
-                                <TextBlock x:Name="LessonType" TextWrapping="Wrap" Text="{Binding LessonType}" Height="Auto" FontSize="20" Margin="0" Width="91"/>
+                            <StackPanel Margin="5,0,0,0">
+                                <TextBlock x:Name="LessonType" TextWrapping="Wrap" Text="{Binding LessonType}" Height="Auto" FontSize="20" Margin="0,0,0,5" Width="91"/>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="Subgroup" TextWrapping="Wrap" Text="{Binding Auditory[]}" Height="Auto" FontSize="15" Margin="0" Width="91"/>
                                 </StackPanel>
@@ -72,7 +72,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
-        <Button Grid.Row="1" Margin="0,10.333,0,-9" Content="настройки" Click="GoToSettingsPage"/>
-        <Button Grid.Row="1" Margin="291,10.333,0,-9" Content="обновить" Click="Button_Click"/>
+        <Button Grid.Row="1" Margin="5,10.333,0,5" Content="настройки" Click="GoToSettingsPage" />
+        <Button Grid.Row="1" Margin="286,10.333,5,5" Content="обновить" Click="Button_Click" />
     </Grid>
 </Page>

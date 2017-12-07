@@ -8,7 +8,7 @@ namespace BSUIR_Scheduler.Models
         private string _groupId;
         private int _subGroup;
         private int _week;
-        private string _role;
+        private int _role;
 
         public string GroupId
         {
@@ -40,7 +40,7 @@ namespace BSUIR_Scheduler.Models
             }
         }
 
-        public string Role
+        public int Role
         {
             get { return _role; }
             set

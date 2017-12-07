@@ -1,39 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
 using System.Threading.Tasks;
+using Windows.Media.Capture;
 using Windows.Storage;
 using Windows.UI.Popups;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using BSUIR_Scheduler;
 using BSUIR_Scheduler.Models;
 using BSUIR_Scheduler.Services;
-using Newtonsoft.Json;
 
 namespace BSUIR_Scheduler
 {
     public sealed partial class MainPage : Page
     {
-        private const string SettingsFileName = "data.json";
-        private const string ScheduleFileName = "scheduleInfo.json";
+        public const string SettingsFileName = "data.json";
+        public const string ScheduleFileName = "scheduleInfo.json";
+        public const string ScheduleEmployeeFileName = "scheduleEmployeeInfo.json";
+        public const string EmployeesFileName = "employees.json";
+        public const string EmployeeFileName = "employee.json";
+        public const string AllGroupsFileName = "allgroups.json";
+        public const string AllGroupsScheduleFileName = "allgroupsschedule.json";
+        public const string AllEmployeesScheduleFileName = "allemployeesschedule.json";
 
         private readonly StoreService _storeService = new StoreService();
         private readonly HttpService _httpService = new HttpService();
         private readonly CalendarService _calendarService = new CalendarService(); 
 
         private Settings _settings = new Settings();
-        private Schedules[] _schedules;
+        private Schedules[] _schedules = new Schedules[1];
         private ScheduleInfo _scheduleInfo = new ScheduleInfo();
 
         public ObservableCollection<ScheduleItem> ListItem = new ObservableCollection<ScheduleItem>();
@@ -45,77 +42,81 @@ namespace BSUIR_Scheduler
         public MainPage()
         {
             InitializeComponent();
+            InitSettings();
             InitDay();
+            
             NavigationCacheMode = NavigationCacheMode.Required;
             DaySchedule.DataContext = ListItem;
             
-            UpdateDayButton();  
+            UpdateDayButton();           
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            InitSettings();
+            UpdateDayButton();
+            GetSchedule();
             Button_Click(new object(), new RoutedEventArgs());
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
-        {
-           bool result = await _storeService.FileIsExist(ApplicationData.Current.LocalFolder, SettingsFileName);
-            if (result)
-            {
-                var settings = await _storeService.ReadJsonSettingsAsync(SettingsFileName);
-
-                _settings.Week = settings.Week;
-                _settings.GroupId = settings.GroupId;
-                _settings.SubGroup = settings.SubGroup;
-                _settings.Role = settings.Role;
-            }
-            else
-            {
-                GoToSettingsPage(new object(), new RoutedEventArgs());
-            }
-        }
-       
-
         private async void Button_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            _settings = await _storeService.ReadJsonSettingsAsync(SettingsFileName);
-           
-            GroupID.Text = _settings.GroupId;
-            Week.SelectedIndex = _scheduleInfo.CurrentWeekNumber;
-            Subgroup.SelectedIndex = _settings.SubGroup;
-
-            bool existed = await _storeService.FileIsExist(ApplicationData.Current.LocalFolder, ScheduleFileName);
-            if (existed)
+            if (_settings.Role == 0)
             {
-                _scheduleInfo = await _storeService.ReadJsonScheduleInfo();
-                await GetSchedule();
+                _scheduleInfo = await _httpService.GetSchedules(_settings.GroupId);
+                await _storeService.Write(_scheduleInfo,ScheduleFileName);
+                GetSchedule();
             }
             else
             {
-                _scheduleInfo = await _httpService.GetSchedulesFromServer(_settings.GroupId);
-                await _storeService.WriteJsonScheduleInfoAsync(_scheduleInfo, ScheduleFileName);
-                _scheduleInfo = await _storeService.ReadJsonScheduleInfo();
-                await GetSchedule();
+                var employee = await _storeService.Read<Employee>(EmployeeFileName);
+                _scheduleInfo = await _httpService.GetEmployeeSchedule(employee.Id);
+                await _storeService.Write(_scheduleInfo, ScheduleEmployeeFileName);
+                GetSchedule();
             }
+                
         }
 
         public async Task GetSchedule()
         {
-            ListItem.Clear();
-            _schedules = _scheduleInfo.Schedules;
-            foreach (var schedule in _schedules)
+            if (_settings.Role == 1)
             {
-                if (schedule.WeekDay.ToLower() == CurrentDay.Text)
+                _scheduleInfo = await _storeService.Read<ScheduleInfo>(ScheduleEmployeeFileName);
+                ListItem.Clear();
+                _schedules = _scheduleInfo.Schedules;
+                foreach (var schedule in _schedules)
                 {
-                    foreach (var lesson in schedule.Schedule)
+                    if (schedule.WeekDay.ToLower() == CurrentDay.Text)
                     {
-                        if (FilterLesson(lesson))
+                        foreach (var lesson in schedule.Schedule)
                         {
-                            ListItem.Add(lesson);
+                            if (FilterLesson(lesson))
+                            {
+                                ListItem.Add(lesson);
+                            }
                         }
                     }
                 }
-            }      
-        }
-
-        public void InitWeekNumber()
-        {
+            }
+            else
+            {
+                _scheduleInfo = await _storeService.Read<ScheduleInfo>(ScheduleFileName);
+                ListItem.Clear();
+                _schedules = _scheduleInfo.Schedules;
+                foreach (var schedule in _schedules)
+                {
+                    if (schedule.WeekDay.ToLower() == CurrentDay.Text)
+                    {
+                        foreach (var lesson in schedule.Schedule)
+                        {
+                            if (FilterLesson(lesson))
+                            {
+                                ListItem.Add(lesson);
+                            }
+                        }
+                    }
+                }
+            }
             
         }
 
@@ -155,9 +156,47 @@ namespace BSUIR_Scheduler
                 _prevDay = _calendarService.TranslateDay(DateTime.Today.DayOfWeek - 1);
             }
         }
+        private async void InitSettings()
+        { 
+            var result = await _storeService.FileIsExist(ApplicationData.Current.LocalFolder, SettingsFileName);
+            if (!result)
+            {
+                GoToSettingsPage(new object(), new RoutedEventArgs());
+                return;
+            }
+            var settings = await _storeService.Read<Settings>(SettingsFileName);
+            _settings.Role = settings.Role;
+            _settings.Week = await _httpService.GetCurrentWeek() == 0 ? _settings.Week : await _httpService.GetCurrentWeek() - 1;
+            if (_settings.Role == 1)
+            {
+                GroupID.Text = (await _storeService.Read<Employee>(EmployeeFileName)).Fio;
+                RoleLabel.Text = "ФИО преподавателя";
+                Week.SelectedIndex = _settings.Week;
+                SubgroupPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+           
+            _settings.GroupId = settings.GroupId;
+            _settings.SubGroup = settings.SubGroup;
+
+            SubgroupPanel.Visibility = Visibility.Visible;
+
+            GroupID.Text = _settings.GroupId;
+            Week.SelectedIndex = _settings.Week;
+            Subgroup.SelectedIndex = _settings.SubGroup;
+
+            RoleLabel.Text = "Номер группы";
+
+            await _storeService.Write(settings,SettingsFileName);
+        }
 
         private void SettingsChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (GroupID.Text != _settings.GroupId)
+            {
+                Button_Click(new object(), new RoutedEventArgs());
+                return;
+            }
             GetSchedule();
         }
 
