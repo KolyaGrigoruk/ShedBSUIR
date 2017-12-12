@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using BSUIR_Scheduler.Models;
 using Windows.Storage;
 using Windows.UI.Popups;
+using Windows.UI.Xaml.Automation.Peers;
 using BSUIR_Scheduler.Services;
 
 namespace BSUIR_Scheduler
@@ -31,20 +32,35 @@ namespace BSUIR_Scheduler
             Suggestions.ItemsSource = suggestList;
         }
 
-        private void ButtonGetSchedule(object sender, RoutedEventArgs e)
+        private async void ButtonGetSchedule(object sender, RoutedEventArgs e)
         {
+            
             if ((bool) studentButton.IsChecked)
             {
+                if (GroupID.Text.Length == 0)
+                {
+                    await new MessageDialog("Пожалуйста, введите номер группы.").ShowAsync();
+                    return;
+                }
                 _settings.GroupId = GroupID.Text;
                 _settings.Role = 0;
                 _storeService.Write(_settings, MainPage.SettingsFileName);
+                var scheduleInfo = await _httpService.GetSchedules(GroupID.Text);
+                await _storeService.Write(scheduleInfo, MainPage.ScheduleFileName);
                 Frame.Navigate(typeof(MainPage));
             }
             else
             {
+                if (suggestList.Count == 0)
+                {
+                    await new MessageDialog("Пожалуйста, выберите преподавателя.").ShowAsync();
+                    return;
+                }
                 _settings.Role = 1;
                 _storeService.Write(_settings, MainPage.SettingsFileName);
                 _storeService.Write(suggestList.First(), MainPage.EmployeeFileName);
+                var sheduleInfo = await _httpService.GetEmployeeSchedule(suggestList.First().Id);
+                _storeService.Write(sheduleInfo, MainPage.ScheduleEmployeeFileName);
                 Frame.Navigate(typeof(MainPage));
             }
         }

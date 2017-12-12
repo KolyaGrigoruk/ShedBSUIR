@@ -34,6 +34,7 @@ namespace BSUIR_Scheduler
         private ScheduleInfo _scheduleInfo = new ScheduleInfo();
 
         public ObservableCollection<ScheduleItem> ListItem = new ObservableCollection<ScheduleItem>();
+        public ObservableCollection<Schedules> ExamsList = new ObservableCollection<Schedules>();
 
         private string _currentDay = "";
         private string _nextDay = "";
@@ -47,6 +48,7 @@ namespace BSUIR_Scheduler
             
             NavigationCacheMode = NavigationCacheMode.Required;
             DaySchedule.DataContext = ListItem;
+            ExamsSchedule.DataContext = ExamsList;
             
             UpdateDayButton();           
         }
@@ -63,9 +65,17 @@ namespace BSUIR_Scheduler
         {
             if (_settings.Role == 0)
             {
-                _scheduleInfo = await _httpService.GetSchedules(_settings.GroupId);
-                await _storeService.Write(_scheduleInfo,ScheduleFileName);
-                GetSchedule();
+                if (await _storeService.FileIsExist(ApplicationData.Current.LocalFolder, ScheduleFileName))
+                {
+                    _scheduleInfo = await _storeService.Read<ScheduleInfo>(ScheduleFileName);
+                    GetSchedule();
+                }
+                else
+                {
+                    _scheduleInfo = await _httpService.GetSchedules(_settings.GroupId);
+                    await _storeService.Write(_scheduleInfo, ScheduleFileName);
+                    GetSchedule();
+                }
             }
             else
             {
@@ -228,6 +238,50 @@ namespace BSUIR_Scheduler
         private void GoToSettingsPage(object sender, RoutedEventArgs e)
         {
             Frame.Navigate(typeof(SettingsPage));
+        }
+
+        private async void GetExams()
+        {
+            if (_settings.Role == 1)
+            {
+                _scheduleInfo = await _storeService.Read<ScheduleInfo>(ScheduleEmployeeFileName);
+            }
+            else
+            {
+                _scheduleInfo = await _storeService.Read<ScheduleInfo>(ScheduleFileName);
+            }
+
+            ExamsList.Clear();
+            _schedules = _scheduleInfo.ExamSchedules;
+            foreach (var schedule in _schedules)
+            {
+                ExamsList.Add(schedule);
+            }
+        }
+
+        private void ExamsButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (examsButton.Content != null && examsButton.Content.Equals("Экзамены"))
+            {
+                GetExams();
+                DaySchedule.Visibility = Visibility.Collapsed;
+                PrevDay.Visibility = Visibility.Collapsed;
+                CurrentDay.Visibility = Visibility.Collapsed;
+                NextDay.Visibility = Visibility.Collapsed;
+                SubgroupPanel.Visibility = Visibility.Collapsed;
+                WeekNumberPanel.Visibility = Visibility.Collapsed;
+                examsButton.Content = "Пары";
+            }
+            else
+            {
+                DaySchedule.Visibility = Visibility.Visible;
+                PrevDay.Visibility = Visibility.Visible;
+                CurrentDay.Visibility = Visibility.Visible;
+                NextDay.Visibility = Visibility.Visible;
+                SubgroupPanel.Visibility = Visibility.Visible;
+                WeekNumberPanel.Visibility = Visibility.Visible;
+                examsButton.Content = "Экзамены";
+            }         
         }
     }
 }

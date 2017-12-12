@@ -37,7 +37,7 @@ namespace BSUIR_Scheduler
         public async Task<T> Read<T>(string fileName) where T : new()
         {    
             var serializer = new DataContractJsonSerializer(typeof(T));
-            bool existed = true;//await FileIsExist(ApplicationData.Current.LocalFolder, fileName);
+            bool existed = await FileIsExist(ApplicationData.Current.LocalFolder, fileName);
             if (existed)
             {
                 using (var stream = await ApplicationData.Current.LocalFolder.OpenStreamForReadAsync(fileName))

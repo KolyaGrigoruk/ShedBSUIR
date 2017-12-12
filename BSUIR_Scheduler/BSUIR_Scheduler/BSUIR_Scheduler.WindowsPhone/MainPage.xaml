@@ -18,11 +18,11 @@
         </Grid.RowDefinitions>
         <StackPanel HorizontalAlignment="Center" Grid.Row="0" >
             <StackPanel Orientation="Horizontal"  VerticalAlignment="Top" HorizontalAlignment="Stretch" Width="384" Height="Auto" >
-                <StackPanel Margin="5,0,5,-0.167">
-                    <TextBlock x:Name="RoleLabel">
+                <StackPanel Margin="5,0">
+                    <TextBlock x:Name="RoleLabel" Margin="0,0,0,5">
                         <Run Text=""/>
                     </TextBlock>
-                    <TextBlock  Width="auto" MaxWidth="250" x:Name="GroupID" FontSize="28" Margin="0,10,0,0"/>
+                    <TextBlock  Width="auto" MaxWidth="250" x:Name="GroupID" FontSize="20" Margin="0,10,0,0"/>
                 </StackPanel>
                 <StackPanel x:Name="SubgroupPanel" Margin="5,0,5,0">
                     <TextBlock>
@@ -33,7 +33,7 @@
                         <ComboBoxItem Content="2"/>
                     </ComboBox>
                 </StackPanel>
-                <StackPanel Canvas.ZIndex="100" Margin="5,0,5,-0.333" VerticalAlignment="Top" Height="Auto">
+                <StackPanel x:Name="WeekNumberPanel" Margin="5,0,5,-0.333" VerticalAlignment="Top" Height="Auto">
                     <TextBlock >
                         <Run Text="Номер недели"/>
                     </TextBlock>
@@ -44,27 +44,51 @@
                         <ComboBoxItem Content="4" />
                     </ComboBox>
                 </StackPanel>
+                <Button x:Name="examsButton" Content="Экзамены" Width="auto" Height="auto" Click="ExamsButton_OnClick" Margin="0,12,0,0">
+                </Button>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Height="52">
+            <StackPanel  Orientation="Horizontal" Height="52">
                 <Button x:Name="PrevDay" FontSize="15" HorizontalAlignment="Left" Margin="5,-3,0,-2.333" Click="PrevDay_Click" />
                 <TextBlock x:Name="CurrentDay" FontSize="22" Margin="10,10,10,1" Text=""/>
                 <Button x:Name="NextDay" FontSize="15" HorizontalAlignment="Right" Click="NextDayClick"/>
             </StackPanel>
-            <ListBox x:Name="DaySchedule" Height="461" ItemsSource="{Binding}" Margin="5,0,0,0">
+            <ListBox x:Name="DaySchedule" Height="461" ItemsSource="{Binding}" Margin="5,0,0,0" RequestedTheme="Light" Background="#BFFFFFFF">
                 <ListBox.ItemTemplate >
                     <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" >
-                            <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" RequestedTheme="Light" >
+                            <StackPanel Orientation="Vertical" RequestedTheme="Light">
                                 <TextBlock x:Name="LTime" TextWrapping="Wrap" Text="{Binding LessonTime}" Height="Auto" FontSize="20" Margin="0"/>
                             </StackPanel>
-                            <StackPanel Orientation="Vertical" Margin="5,0,0,0">
+                            <StackPanel Orientation="Vertical" Margin="5,0,0,0" RequestedTheme="Light">
                                 <TextBlock x:Name="LessonTitle" TextWrapping="Wrap" Text="{Binding Subject}" Height="Auto" FontSize="22" Margin="0,0,0,5"/>
                                 <TextBlock x:Name="Employee" TextWrapping="Wrap" Text="{Binding Employee[0].Fio}" Height="Auto" FontSize="16" Margin="0"/>
                             </StackPanel>
-                            <StackPanel Margin="5,0,0,0">
+                            <StackPanel Margin="5,0,0,0" RequestedTheme="Light">
                                 <TextBlock x:Name="LessonType" TextWrapping="Wrap" Text="{Binding LessonType}" Height="Auto" FontSize="20" Margin="0,0,0,5" Width="91"/>
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock x:Name="Subgroup" TextWrapping="Wrap" Text="{Binding Auditory[]}" Height="Auto" FontSize="15" Margin="0" Width="91"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <ListBox x:Name="ExamsSchedule" Height="461" ItemsSource="{Binding}" Margin="5,0,0,0" RequestedTheme="Light" Background="#BFFFFFFF">
+                <ListBox.ItemTemplate >
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0" RequestedTheme="Light" >
+                            <StackPanel Orientation="Vertical" RequestedTheme="Light">
+                                <TextBlock x:Name="LTime" TextWrapping="Wrap" Text="{Binding WeekDay}" Height="Auto" FontSize="20" Margin="0"/>
+                                <TextBlock TextWrapping="Wrap" Text="{Binding Schedule[0].LessonTime}" Height="Auto" FontSize="15" Margin="0"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical" Margin="5,0,0,0" RequestedTheme="Light">
+                                <TextBlock x:Name="LessonTitle" TextWrapping="Wrap" Text="{Binding Schedule[0].Subject}" Height="Auto" FontSize="22" Margin="0,0,0,5"/>
+                                <TextBlock x:Name="Employee" TextWrapping="Wrap" Text="{Binding Schedule[0].Employee[0].Fio}" Height="Auto" FontSize="16" Margin="0"/>
+                            </StackPanel>
+                            <StackPanel Margin="5,0,0,0" RequestedTheme="Light">
+                                <TextBlock x:Name="LessonType" TextWrapping="Wrap" Text="{Binding Schedule[0].LessonType}" Height="Auto" FontSize="15" Margin="0,0,0,5" Width="auto"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="Subgroup" TextWrapping="Wrap" Text="{Binding Schedule[0].Auditory[]}" Height="Auto" FontSize="15" Margin="0" Width="auto"/>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
